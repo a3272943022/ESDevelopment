@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.es.demo.dao.CheckItemsMapper">
+    <resultMap id="resultmapConller" type="com.example.es.demo.model.CheckItems">
+        <id column="id" property="id"/>
+        <result column="report_id" property="reportId"/>
+        <result column="name" property="name"/>
+        <result column="stname" property="stname"/>
+        <result column="stunit" property="stunit"/>
+        <result column="techTarget" property="techTarget"/>
+        <result column="checkResult" property="checkResult"/>
+        <result column="itemResult" property="itemResult"/>
+        <result column="remark" property="remark"/>
+        <result column="standardMultiple" property="standardMultiple"/>
+        <result column="flag" property="flag"/>
+        <result column="factor_id" property="factorId"/>
+        <result column="risk_level" property="riskLevel"/>
+        <result column="edit" property="edit"/>
+        <result column="formatStandard" property="formatStandard"/>
+        <result column="formatResult" property="formatResult"/>
+    </resultMap>
+    <select id="getSelectList" resultMap="resultmapConller">
+        select * from yj_check_items limit 0,100000
+    </select>
+</mapper>
