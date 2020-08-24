@@ -10,4 +10,5 @@ import org.springframework.data.elasticsearch.repository.ElasticsearchRepository
  * @CLASSNAME RoleRepository
  */
 public interface CheckItemsRepository extends ElasticsearchRepository<CheckItems, String> {
+    
 }

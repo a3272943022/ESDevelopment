@@ -4,6 +4,7 @@ import com.example.es.demo.datamodule.CheckItemsRepository;
 import com.example.es.demo.model.CheckItems;
 import com.example.es.demo.server.CheckItemsServer;
 import com.google.gson.Gson;
+import org.elasticsearch.action.ActionFuture;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.get.GetResponse;
@@ -33,6 +34,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -51,8 +53,7 @@ public class TextContenller {
 
     @Autowired
     private CheckItemsServer checkItemsServer;
-    @Autowired
-    private CheckItemsRepository checkItemsRepository;
+
     @Resource
     private ElasticsearchTemplate elasticsearchTemplate;
 
@@ -69,6 +70,8 @@ public class TextContenller {
     /**
      * 把数据库里的数据导入es中
      */
+    @Autowired
+    private CheckItemsRepository checkItemsRepository;
     @RequestMapping("/save")
     public String save() {
         List<CheckItems> list = checkItemsServer.getSelectList();
@@ -83,15 +86,17 @@ public class TextContenller {
      */
     public Object bulkRequest() throws Exception {
         BulkRequest bulkRequest = new BulkRequest();
-
         List<Map> maps = new ArrayList<>();
-
+        Map s= new HashMap();
+        s.put("name","姓名");
+        s.put("age","12");
+        maps.add(s);
         for (Map map : maps) {
-            IndexRequest indexRequest = new IndexRequest("test-checkitems", "checkitems");
+            IndexRequest indexRequest = new IndexRequest("test-checkitems", "_doc");
             indexRequest.source(map);
             bulkRequest.add(indexRequest);
         }
-        //  BulkResponse bulkResponse=elasticsearchTemplate.bulk(buliRequest);
+        ActionFuture<BulkResponse> actionFuture=elasticsearchTemplate.getClient().bulk(bulkRequest);
 
         return null;
     }
@@ -121,6 +126,7 @@ public class TextContenller {
     @RequestMapping(value = "/getid", method = RequestMethod.GET)
     public Object getSearchId() {
         GetResponse getResponse = elasticsearchTemplate.getClient().prepareGet("test-checkitems", "checkitems", "61").get();
+        getResponse.getSourceAsString();
         System.out.println(getResponse);
         return getResponse;
     }
@@ -154,11 +160,10 @@ public class TextContenller {
         System.out.println(response);
         //通过
         try {
-            IndexResponse indexResponse = elasticsearchTemplate.getClient().prepareIndex("test-checkitems", "checkitems")
-                    .setSource(XContentFactory.jsonBuilder()
-                            .startObject()
-                            .field("", "")
-                            .endObject()).get();
+IndexResponse indexResponse = elasticsearchTemplate.getClient().prepareIndex("test-checkitems", "checkitems")
+  .setSource(XContentFactory.jsonBuilder().startObject()
+        .field("name", "你好")
+  .endObject()).get();
             System.out.println(indexResponse);
         } catch (Exception e) {
 
@@ -177,7 +182,7 @@ public class TextContenller {
             UpdateRequest updateRequest = new UpdateRequest("test-checkitems", "checkitems", "61")
                     .doc(XContentFactory.jsonBuilder()
                             .startObject()
-                            .field("stname", "修改内容")
+                            .field("stname", "修改内容").endObject()
                     );
             //使用需要修改的内容，提交到es
             UpdateResponse updateResponse = elasticsearchTemplate.getClient().update(updateRequest).get();
